@@ -13,4 +13,4 @@ phases:
 artifacts:
   base-directory: deployme
   files:
-    - **/*
+    - '**/*'

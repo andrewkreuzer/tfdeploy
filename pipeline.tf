@@ -2,12 +2,16 @@ data "aws_codestarconnections_connection" "me" {
   arn = "arn:aws:codestar-connections:us-east-2:146427984190:connection/c3a9a47e-a2eb-432c-b79a-b9c4ca5b0f3d"
 }
 
+data "aws_s3_bucket" "pipeline" {
+  bucket = "codepipeline-us-east-2-141992872046"
+}
+
 resource "aws_codepipeline" "codepipeline" {
   name     = "tf-deploy-pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = "s3://playground.tf/tfdeploypipe/"
+    location = data.aws_s3_bucket.pipeline.bucket
     type     = "S3"
   }
 
@@ -24,7 +28,7 @@ resource "aws_codepipeline" "codepipeline" {
 
       configuration = {
         ConnectionArn    = data.aws_codestarconnections_connection.me.arn
-        FullRepositoryId = "tfdeploy"
+        FullRepositoryId = "andrewkreuzer/tfdeploy"
         BranchName       = "main"
       }
     }
@@ -37,9 +41,10 @@ resource "aws_codepipeline" "codepipeline" {
       name            = "Plan"
       category        = "Build"
       owner           = "AWS"
-      provider        = "Codebuild"
+      provider        = "CodeBuild"
       input_artifacts = ["source_output"]
       output_artifacts = ["plan_output"]
+      version = "1"
 
       configuration = {
         ProjectName = "tfplan"
@@ -54,7 +59,8 @@ resource "aws_codepipeline" "codepipeline" {
       name = "Approve"
       category = "Approval"
       owner = "AWS"
-      provider = "Manaul"
+      provider = "Manual"
+      version = "1"
     }
   }
 
@@ -65,7 +71,7 @@ resource "aws_codepipeline" "codepipeline" {
       name            = "Deploy"
       category        = "Build"
       owner           = "AWS"
-      provider        = "Codebuild"
+      provider        = "CodeBuild"
       input_artifacts = ["plan_output"]
       version         = "1"
 
@@ -114,7 +120,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
       ],
       "Resource": [
         "arn:aws:s3:::playground.tf",
-        "arn:aws:s3:::playground.tf/tfdeploypipe/*",
+        "arn:aws:s3:::playground.tf/tfdeploypipe/*"
       ]
     },
     {
