@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - cd deployme
+      - terraform init -input=false
+
+  build:
+    commands:
+      - terraform plan -out=tfplan -input=false
+
+artifacts:
+  base-directory: deployme
+  files:
+    - **/*
