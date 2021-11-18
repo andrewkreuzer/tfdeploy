@@ -1,6 +1,9 @@
 version: 0.2
 
 phases:
+  pre_build:
+    commands:
+      - cd $CODEBUILD_SRC_DIR_plan_output
   build:
     commands:
       - terraform apply -auto-approve -input=false

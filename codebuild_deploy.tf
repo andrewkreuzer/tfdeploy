@@ -20,6 +20,11 @@ resource "aws_iam_role" "tfdeploy" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "PowerUser" {
+  role       = aws_iam_role.tfdeploy.name
+  policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
+}
+
 resource "aws_iam_role_policy_attachment" "tfdeploy" {
   role       = aws_iam_role.tfdeploy.name
   policy_arn = aws_iam_policy.tfdeploy.arn
@@ -50,8 +55,8 @@ resource "aws_iam_policy" "tfdeploy" {
         ]
         Effect   = "Allow"
         Resource = [
-          "arn:aws:s3:::playground.tf",
-          "arn:aws:s3:::playground.tf/tfdeploypipe/*"
+          "${data.aws_s3_bucket.pipeline.arn}",
+          "${data.aws_s3_bucket.pipeline.arn}/*"
         ]
       },
     ]

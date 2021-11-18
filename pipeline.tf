@@ -72,7 +72,7 @@ resource "aws_codepipeline" "codepipeline" {
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
-      input_artifacts = ["plan_output"]
+      input_artifacts = ["source_output", "plan_output"]
       version         = "1"
 
       configuration = {
@@ -119,8 +119,8 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         "s3:PutObject"
       ],
       "Resource": [
-        "arn:aws:s3:::playground.tf",
-        "arn:aws:s3:::playground.tf/tfdeploypipe/*"
+        "${data.aws_s3_bucket.pipeline.arn}",
+        "${data.aws_s3_bucket.pipeline.arn}/*"
       ]
     },
     {

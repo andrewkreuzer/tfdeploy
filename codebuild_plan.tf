@@ -25,6 +25,11 @@ resource "aws_iam_role_policy_attachment" "tfplan" {
   policy_arn = aws_iam_policy.tfplan.arn
 }
 
+resource "aws_iam_role_policy_attachment" "ReadOnly" {
+  role       = aws_iam_role.tfplan.name
+  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+}
+
 resource "aws_iam_policy" "tfplan" {
   name = "tfplan-policy"
 
@@ -48,10 +53,10 @@ resource "aws_iam_policy" "tfplan" {
           "s3:GetBucketAcl",
           "s3:GetBucketLocation"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
-          "arn:aws:s3:::playground.tf",
-          "arn:aws:s3:::playground.tf/tfdeploypipe/*"
+          "${data.aws_s3_bucket.pipeline.arn}",
+          "${data.aws_s3_bucket.pipeline.arn}/*"
         ]
       },
     ]
