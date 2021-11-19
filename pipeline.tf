@@ -61,6 +61,10 @@ resource "aws_codepipeline" "codepipeline" {
       owner = "AWS"
       provider = "Manual"
       version = "1"
+
+      configuration = {
+        NotificationArn = aws_sns_topic.pipeline_notify.arn
+      }
     }
   }
 
@@ -77,6 +81,7 @@ resource "aws_codepipeline" "codepipeline" {
 
       configuration = {
         ProjectName = "tfdeploy"
+        PrimarySource = "source_output"
       }
     }
   }

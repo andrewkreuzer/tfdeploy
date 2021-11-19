@@ -20,9 +20,9 @@ resource "aws_iam_role" "tfdeploy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "PowerUser" {
+resource "aws_iam_role_policy_attachment" "Administrator" {
   role       = aws_iam_role.tfdeploy.name
-  policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "tfdeploy" {
