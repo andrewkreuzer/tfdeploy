@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+aws --profile sandbox lambda invoke \
+    --function-name deployme \
+    --cli-binary-format=raw-in-base64-out \
+    --payload $1 \
+    response.json

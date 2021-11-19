@@ -1,13 +1,15 @@
 terraform {
   backend "s3" {
     bucket  = "terraform.playground"
-    key     = "tfdeploypipe/terraform.tfstate"
+    key     = "tfdeployme/terraform.tfstate"
     region  = "us-east-2"
+    profile = "personal"
   }
 }
 
 provider "aws" {
   region  = "us-east-2"
+  profile = "personal"
 }
 
 data "archive_file" "deployme" {
