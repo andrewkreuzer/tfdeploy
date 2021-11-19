@@ -1,9 +1,9 @@
 data "aws_codestarconnections_connection" "me" {
-  arn = "arn:aws:codestar-connections:us-east-2:146427984190:connection/c3a9a47e-a2eb-432c-b79a-b9c4ca5b0f3d"
+  arn = "arn:aws:codestar-connections:ca-central-1:667919385234:connection/fc4784dd-7e60-437e-858a-1cf74be8e9bd"
 }
 
-data "aws_s3_bucket" "pipeline" {
-  bucket = "codepipeline-us-east-2-141992872046"
+resource "aws_s3_bucket" "pipeline" {
+  bucket = "andrewkreuzer.pipeline"
 }
 
 resource "aws_codepipeline" "codepipeline" {
@@ -11,7 +11,7 @@ resource "aws_codepipeline" "codepipeline" {
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = data.aws_s3_bucket.pipeline.bucket
+    location = aws_s3_bucket.pipeline.bucket
     type     = "S3"
   }
 
@@ -38,13 +38,13 @@ resource "aws_codepipeline" "codepipeline" {
     name = "Plan"
 
     action {
-      name            = "Plan"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      input_artifacts = ["source_output"]
+      name             = "Plan"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["source_output"]
       output_artifacts = ["plan_output"]
-      version = "1"
+      version          = "1"
 
       configuration = {
         ProjectName = "tfplan"
@@ -56,11 +56,11 @@ resource "aws_codepipeline" "codepipeline" {
     name = "Approve"
 
     action {
-      name = "Approve"
+      name     = "Approve"
       category = "Approval"
-      owner = "AWS"
+      owner    = "AWS"
       provider = "Manual"
-      version = "1"
+      version  = "1"
 
       configuration = {
         NotificationArn = aws_sns_topic.pipeline_notify.arn
@@ -80,7 +80,7 @@ resource "aws_codepipeline" "codepipeline" {
       version         = "1"
 
       configuration = {
-        ProjectName = "tfdeploy"
+        ProjectName   = "tfdeploy"
         PrimarySource = "source_output"
       }
     }
@@ -110,40 +110,45 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   name = "deploy-tf"
   role = aws_iam_role.codepipeline_role.id
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect":"Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:GetObjectVersion",
-        "s3:GetBucketVersioning",
-        "s3:PutObjectAcl",
-        "s3:PutObject"
-      ],
-      "Resource": [
-        "${data.aws_s3_bucket.pipeline.arn}",
-        "${data.aws_s3_bucket.pipeline.arn}/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "codestar-connections:UseConnection"
-      ],
-      "Resource": "${data.aws_codestarconnections_connection.me.arn}"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "codebuild:BatchGetBuilds",
-        "codebuild:StartBuild"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-EOF
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:GetBucketVersioning",
+          "s3:PutObjectAcl",
+          "s3:PutObject"
+        ],
+        Resource = [
+          "${aws_s3_bucket.pipeline.arn}",
+          "${aws_s3_bucket.pipeline.arn}/*"
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "codestar-connections:UseConnection"
+        ],
+        Resource = "${data.aws_codestarconnections_connection.me.arn}"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "codebuild:BatchGetBuilds",
+          "codebuild:StartBuild"
+        ],
+        Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "sns:Publish",
+        ],
+        Resource = aws_sns_topic.pipeline_notify.arn
+      }
+    ]
+  })
 }

@@ -55,8 +55,8 @@ resource "aws_iam_policy" "tfdeploy" {
         ]
         Effect   = "Allow"
         Resource = [
-          "${data.aws_s3_bucket.pipeline.arn}",
-          "${data.aws_s3_bucket.pipeline.arn}/*"
+          "${aws_s3_bucket.pipeline.arn}",
+          "${aws_s3_bucket.pipeline.arn}/*"
         ]
       },
     ]

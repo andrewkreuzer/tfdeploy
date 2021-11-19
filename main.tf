@@ -1,13 +1,13 @@
 terraform {
   backend "s3" {
-    bucket  = "playground.tf"
+    bucket  = "terraform.playground"
     key     = "tfdeploypipe/terraform.tfstate"
     region  = "us-east-2"
-    profile = "personal"
+    profile = "sandbox"
   }
 }
 
 provider "aws" {
   region  = "us-east-2"
-  profile = "personal"
+  profile = "sandbox"
 }
