@@ -3,13 +3,13 @@ terraform {
     bucket  = "terraform.playground"
     key     = "tfdeployme/terraform.tfstate"
     region  = "us-east-2"
-    profile = "personal"
+    profile = "sandbox"
   }
 }
 
 provider "aws" {
   region  = "us-east-2"
-  profile = "personal"
+  profile = "sandbox"
 }
 
 data "archive_file" "deployme" {

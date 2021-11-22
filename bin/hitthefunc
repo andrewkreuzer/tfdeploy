@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
+set -e
 
-aws --profile sandbox lambda invoke \
+ok=$(aws --profile sandbox lambda invoke \
     --function-name deployme \
     --cli-binary-format=raw-in-base64-out \
-    --payload $1 \
-    response.json
+    --payload "$1" \
+    response.json)
+
+if [ "$(echo $ok | jq '.StatusCode')" == "200" ]; then
+  echo Lambda returned:
+  echo
+  cat response.json
+  echo
+
+  rm response.json
+fi
